@@ -16,12 +16,6 @@ pipeline {
             }
         }
 
-        stage('Install Kiro CLI') {
-            steps {
-                sh 'curl -fsSL https://cli.kiro.dev/install | bash'
-            }
-        }
-
         stage('Test') {
             steps {
                 sh '''
@@ -37,8 +31,17 @@ pipeline {
             sh '''
                 export PATH="$HOME/.local/bin:$PATH"
                 git diff HEAD~1 > /tmp/diff.txt 2>/dev/null || true
-                kiro-cli chat --no-interactive --trust-tools=read,grep \
-                  "The build failed. Here is the test output from test-output.log and the code diff in /tmp/diff.txt. Analyze the failure, identify the root cause, map it to the code change, and suggest a fix."
+
+                git checkout -b fix/kiro-auto-fix-${BUILD_NUMBER}
+
+                kiro-cli chat --no-interactive --trust-tools=read,grep,write \
+                  "The build failed. Read test-output.log and /tmp/diff.txt. Fix the bug by editing the source files directly. Do not ask for confirmation, just apply the fix."
+
+                if [ -n "$(git diff)" ]; then
+                    git add -A
+                    git commit -m "fix: auto-fix from Kiro build triage (build #${BUILD_NUMBER})"
+                    git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
+                fi
             '''
         }
     }
