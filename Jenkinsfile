@@ -39,6 +39,8 @@ pipeline {
                   "The build failed. Read test-output.log and /tmp/diff.txt. Fix the bug by editing the source files directly. Do not ask for confirmation, just apply the fix."
 
                 if [ -n "$(git diff)" ]; then
+                    git config user.email "kiro-bot@demo.local"
+                    git config user.name "Kiro Bot"
                     git add -A
                     git commit -m "fix: auto-fix from Kiro build triage (build #${BUILD_NUMBER})"
                     git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
