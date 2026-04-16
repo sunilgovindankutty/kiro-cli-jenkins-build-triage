@@ -44,8 +44,10 @@ pipeline {
                         git config user.name "Kiro Bot"
                         git add -A
                         git commit -m "fix: auto-fix from Kiro build triage (build #${BUILD_NUMBER})"
-                        git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/sunilgovindankutty/kiro-cli-jenkins-build-triage.git
+                        echo "https://x-access-token:${GH_TOKEN}@github.com" > /tmp/.git-credentials
+                        git config credential.helper 'store --file=/tmp/.git-credentials'
                         git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
+                        rm -f /tmp/.git-credentials
                     fi
                 '''
             }
