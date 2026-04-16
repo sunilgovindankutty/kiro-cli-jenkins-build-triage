@@ -10,7 +10,7 @@ def get_weather(city: str) -> str:
     data = resp.json()
     current = data["current_condition"][0]
     return (
-        f"{city}: {current['temp_F']}°F, "
+        f"{city}: {current['temp_X']}°F, "
         f"{current['weatherDesc'][0]['value']}, "
         f"humidity {current['humidity']}%"
     )
