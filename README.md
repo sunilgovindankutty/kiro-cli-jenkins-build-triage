@@ -24,7 +24,6 @@ agent.py           — Strands weather agent (11 lines)
 tools.py           — Weather lookup tool using wttr.in (no API key needed)
 test_tools.py      — Unit tests
 Jenkinsfile        — Pipeline with Kiro headless triage + auto-fix + PR creation
-Dockerfile         — Container image (for optional ECR deployment)
 requirements.txt   — Python dependencies
 ```
 
