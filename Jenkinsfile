@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         KIRO_API_KEY = credentials('kiro-api-key')
+        GITHUB_TOKEN = credentials('github-token')
     }
 
     stages {
@@ -43,7 +44,8 @@ pipeline {
                     git config user.name "Kiro Bot"
                     git add -A
                     git commit -m "fix: auto-fix from Kiro build triage (build #${BUILD_NUMBER})"
-                    git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
+                    REPO_URL=$(git config --get remote.origin.url | sed "s|https://|https://${GITHUB_TOKEN}@|")
+                    git push ${REPO_URL} fix/kiro-auto-fix-${BUILD_NUMBER}
                 fi
             '''
         }
