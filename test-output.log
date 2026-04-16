@@ -1,0 +1,74 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.0.3, pluggy-1.6.0 -- /var/jenkins_home/workspace/strands-weather-agent/venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /var/jenkins_home/workspace/strands-weather-agent
+plugins: anyio-4.13.0
+collecting ... collected 2 items
+
+test_tools.py::test_get_weather_returns_formatted_string FAILED          [ 50%]
+test_tools.py::test_get_weather_handles_api_error PASSED                 [100%]
+
+=================================== FAILURES ===================================
+__________________ test_get_weather_returns_formatted_string ___________________
+
+    def test_get_weather_returns_formatted_string():
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "current_condition": [{
+                "temp_F": "85",
+                "weatherDesc": [{"value": "Sunny"}],
+                "humidity": "45",
+            }]
+        }
+        mock_response.raise_for_status = MagicMock()
+    
+        with patch("tools.requests.get", return_value=mock_response):
+>           result = get_weather(city="Dallas")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_tools.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <strands.tools.decorator.DecoratedFunctionTool object at 0xec424b60e5d0>
+args = (), kwargs = {'city': 'Dallas'}
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
+        """Call the original function with the provided arguments.
+    
+        This method enables the decorated function to be called directly with its original signature,
+        preserving the normal function call behavior.
+    
+        Args:
+            *args: Positional arguments to pass to the function.
+            **kwargs: Keyword arguments to pass to the function.
+    
+        Returns:
+            The result of the original function call.
+        """
+>       return self._tool_func(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+venv/lib/python3.13/site-packages/strands/tools/decorator.py:526: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+city = 'Dallas'
+
+    @tool
+    def get_weather(city: str) -> str:
+        """Get current weather for a city using wttr.in API."""
+        resp = requests.get(f"https://wttr.in/{city}?format=j1", timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        current = data["current_condition"][0]
+        return (
+>           f"{city}: {current['temp_X']}°F, "
+                       ^^^^^^^^^^^^^^^^^
+            f"{current['weatherDesc'][0]['value']}, "
+            f"humidity {current['humidity']}%"
+        )
+E       KeyError: 'temp_X'
+
+tools.py:13: KeyError
+=========================== short test summary info ============================
+FAILED test_tools.py::test_get_weather_returns_formatted_string - KeyError: 'temp_X'
+========================= 1 failed, 1 passed in 0.27s ==========================
