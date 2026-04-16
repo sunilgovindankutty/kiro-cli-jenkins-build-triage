@@ -18,7 +18,8 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '''
+                sh '''#!/bin/bash
+                    set -o pipefail
                     . venv/bin/activate
                     pytest test_tools.py -v --tb=long 2>&1 | tee test-output.log
                 '''
