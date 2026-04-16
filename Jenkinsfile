@@ -50,12 +50,15 @@ pipeline {
                     printf '#!/bin/bash\necho $GH_TOKEN\n' > /tmp/askpass.sh
                     chmod +x /tmp/askpass.sh
                     GIT_ASKPASS=/tmp/askpass.sh git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
+                    cat > /tmp/pr.json << EOF
+{"title":"Auto-fix: build #${BUILD_NUMBER}","body":"Kiro CLI identified and fixed the build failure automatically.","head":"fix/kiro-auto-fix-${BUILD_NUMBER}","base":"main"}
+EOF
                     curl -s -X POST \
                       -H "Authorization: token $GH_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/sunilgovindankutty/kiro-cli-jenkins-build-triage/pulls \
-                      -d "{\"title\":\"Auto-fix: build #${BUILD_NUMBER}\",\"body\":\"Kiro CLI identified and fixed the build failure automatically.\",\"head\":\"fix/kiro-auto-fix-${BUILD_NUMBER}\",\"base\":\"main\"}"
-                    rm -f /tmp/askpass.sh
+                      -d @/tmp/pr.json
+                    rm -f /tmp/askpass.sh /tmp/pr.json
                 '''
             }
         }
