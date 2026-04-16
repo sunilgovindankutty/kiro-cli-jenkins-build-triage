@@ -34,8 +34,8 @@ requirements.txt   — Python dependencies
 
 - **Jenkins** with Pipeline plugin
 - **Python 3** available on the Jenkins agent
-- **Kiro CLI** installed on the Jenkins agent
 - **GitHub personal access token** (classic, with `repo` scope)
+- **Kiro CLI API key** (from https://app.kiro.dev)
 
 ## Setup
 
@@ -58,13 +58,7 @@ Open http://localhost:8080, complete setup, install suggested plugins.
 docker exec -u root jenkins bash -c "apt-get update && apt-get install -y python3 python3-pip python3-venv"
 ```
 
-### 3. Install Kiro CLI in the Jenkins container
-
-```bash
-docker exec jenkins bash -c "curl -fsSL https://cli.kiro.dev/install | bash"
-```
-
-### 4. Add Jenkins credentials
+### 3. Add Jenkins credentials
 
 Go to **Manage Jenkins → Credentials → System → Global credentials → Add Credentials**:
 
@@ -73,7 +67,7 @@ Go to **Manage Jenkins → Credentials → System → Global credentials → Add
 | `kiro-api-key` | Secret text | Your Kiro API key (from https://app.kiro.dev) |
 | `github-token` | Secret text | GitHub personal access token with `repo` scope |
 
-### 5. Create the pipeline job
+### 4. Create the pipeline job
 
 1. **New Item → Pipeline** → name it (e.g., `kiro-build-triage`)
 2. **Pipeline → Definition**: Pipeline script from SCM
@@ -82,7 +76,7 @@ Go to **Manage Jenkins → Credentials → System → Global credentials → Add
 5. **Script Path**: `Jenkinsfile`
 6. **Save**
 
-### 6. Run a green build first
+### 5. Run a green build first
 
 Make sure `tools.py` has `temp_F` (not `temp_X`). Click **Build Now**. It should pass.
 

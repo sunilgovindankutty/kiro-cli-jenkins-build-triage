@@ -16,6 +16,12 @@ pipeline {
             }
         }
 
+        stage('Install Kiro CLI') {
+            steps {
+                sh 'yes | curl -fsSL https://cli.kiro.dev/install | bash || true'
+            }
+        }
+
         stage('Test') {
             steps {
                 sh '''#!/bin/bash
