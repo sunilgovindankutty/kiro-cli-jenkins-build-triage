@@ -17,8 +17,6 @@ The sample app is a minimal [Strands](https://strandsagents.com/) weather agent 
 3. Edits the source files directly using the `write` tool
 4. The pipeline then commits, pushes a fix branch, and opens a PR via the GitHub API
 
-Typical triage: **3-4 seconds, ~$0.03 per run**.
-
 ## Project Structure
 
 ```
@@ -34,7 +32,7 @@ requirements.txt   — Python dependencies
 
 - **Jenkins** with Pipeline plugin
 - **Python 3** available on the Jenkins agent
-- **GitHub personal access token** (classic, with `repo` scope)
+- **GitHub personal access token** 
 - **Kiro CLI API key** (from https://app.kiro.dev)
 
 ## Setup
@@ -112,9 +110,6 @@ Check your GitHub repo for the new PR.
 - **Add more trusted tools** (e.g., `--trust-tools=read,grep,write,shell`) to let Kiro run tests after fixing — note: `shell` is blocked in `--no-interactive` mode by default
 - **Swap the sample app** for any project with tests — the Kiro triage stage is app-agnostic
 
-## Cost
-
-Kiro CLI charges per use. Typical build triage costs ~$0.03-0.16 depending on the complexity of the failure and number of files read.
 
 ## License
 
