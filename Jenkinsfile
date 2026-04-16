@@ -1,15 +1,24 @@
 pipeline {
     agent any
 
+    environment {
+        KIRO_API_KEY = credentials('kiro-api-key')
+    }
+
     stages {
-        stage('Setup Python') {
+        stage('Install Python Deps') {
             steps {
                 sh '''
-                    apt-get update && apt-get install -y python3 python3-pip python3-venv
                     python3 -m venv venv
                     . venv/bin/activate
                     pip install -r requirements.txt
                 '''
+            }
+        }
+
+        stage('Install Kiro CLI') {
+            steps {
+                sh 'curl -fsSL https://cli.kiro.dev/install | bash'
             }
         }
 
@@ -26,14 +35,10 @@ pipeline {
     post {
         failure {
             sh '''
-                echo "# Build Failure Context" > /tmp/kiro-input.md
-                echo "## Build Log" >> /tmp/kiro-input.md
-                cat test-output.log >> /tmp/kiro-input.md 2>/dev/null || echo "No test output" >> /tmp/kiro-input.md
-                echo "## Recent Code Changes" >> /tmp/kiro-input.md
-                git diff HEAD~1 >> /tmp/kiro-input.md 2>/dev/null || echo "No diff available" >> /tmp/kiro-input.md
-
-                echo "=== Kiro triage would run here ==="
-                cat /tmp/kiro-input.md
+                export PATH="$HOME/.local/bin:$PATH"
+                git diff HEAD~1 > /tmp/diff.txt 2>/dev/null || true
+                kiro-cli chat --no-interactive --trust-tools=read,grep \
+                  "The build failed. Here is the test output from test-output.log and the code diff in /tmp/diff.txt. Analyze the failure, identify the root cause, map it to the code change, and suggest a fix."
             '''
         }
     }
