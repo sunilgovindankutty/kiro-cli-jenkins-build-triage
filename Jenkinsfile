@@ -29,26 +29,28 @@ pipeline {
 
     post {
         failure {
+            sh '''
+                export PATH="$HOME/.local/bin:$PATH"
+                git diff HEAD~1 > /tmp/diff.txt 2>/dev/null || true
+                git checkout -b fix/kiro-auto-fix-${BUILD_NUMBER}
+
+                kiro-cli chat --no-interactive --trust-tools=read,grep,write \
+                  "The build failed. Read test-output.log and /tmp/diff.txt. Fix the bug by editing the source files directly. Do not ask for confirmation, just apply the fix."
+
+                if [ -n "$(git diff)" ]; then
+                    git config user.email "kiro-bot@demo.local"
+                    git config user.name "Kiro Bot"
+                    git add -A
+                    git commit -m "fix: auto-fix from Kiro build triage (build #${BUILD_NUMBER})"
+                fi
+            '''
+
             withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
-                sh '''
-                    export PATH="$HOME/.local/bin:$PATH"
-                    git diff HEAD~1 > /tmp/diff.txt 2>/dev/null || true
-
-                    git checkout -b fix/kiro-auto-fix-${BUILD_NUMBER}
-
-                    kiro-cli chat --no-interactive --trust-tools=read,grep,write \
-                      "The build failed. Read test-output.log and /tmp/diff.txt. Fix the bug by editing the source files directly. Do not ask for confirmation, just apply the fix."
-
-                    if [ -n "$(git diff)" ]; then
-                        git config user.email "kiro-bot@demo.local"
-                        git config user.name "Kiro Bot"
-                        git add -A
-                        git commit -m "fix: auto-fix from Kiro build triage (build #${BUILD_NUMBER})"
-                        echo "https://x-access-token:${GH_TOKEN}@github.com" > /tmp/.git-credentials
-                        git config credential.helper 'store --file=/tmp/.git-credentials'
-                        git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
-                        rm -f /tmp/.git-credentials
-                    fi
+                sh '''#!/bin/bash
+                    printf '#!/bin/bash\necho $GH_TOKEN\n' > /tmp/askpass.sh
+                    chmod +x /tmp/askpass.sh
+                    GIT_ASKPASS=/tmp/askpass.sh git push origin fix/kiro-auto-fix-${BUILD_NUMBER}
+                    rm -f /tmp/askpass.sh
                 '''
             }
         }
